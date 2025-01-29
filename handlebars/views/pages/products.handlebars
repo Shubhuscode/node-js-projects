@@ -1,0 +1,28 @@
+<!-- views/pages/products.handlebars -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+</head>
+
+<body>
+    {{> header}}
+
+    <main>
+        <h1>{{title}}</h1>
+        <div class="products">
+            {{#each products}}
+                <div class="product">
+                    <h2>{{name}}</h2>
+                    <p>Price: ₹{{price}}</p>
+                </div>
+            {{/each}}
+        </div>
+    </main>
+
+    {{> footer}}
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+//- views/pages/products.pug
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title
+  body
+    include ../partials/header
+
+    main
+      h1= title
+      .products
+        each product in products
+          .product
+            h2= product.name
+            p Price: #{product.price}
+
+    include ../partials/footer

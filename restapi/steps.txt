@@ -1,0 +1,210 @@
+Step 1: Set up the project
+Create a new folder for your project and open a command prompt in that folder. Run the following command to create a new package.json file:
+
+npm init -y
+This will create a package.json file in your project directory. Now, install the required dependencies by running the following command:
+
+npm install express mongoose nodemon dotenv
+express: a popular web framework for Node.js.
+mongoose: an Object Data Modeling (ODM) library for MongoDB and Node.js.
+nodemon: to restart our server every time we save our file.
+dotenv: to manage .env file.
+
+Step 2: Set up the server
+Create a new file named index.js in your project directory. This will be the main entry point of your application. Add the following code to set up the server:
+
+const express = require('express');
+const mongoose = require('mongoose');
+
+// Set up the express app
+const app = express();
+
+// Allows us to accept the data in JSON format
+app.use(express.json());
+
+// Start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server started on port ${port}`));
+Before moving forward in the package.json file, add the following script:
+
+"scripts": {
+    "start": "nodemon index.js"
+},
+Now we can start our server using npm start, and it will run using the Nodemon package that we previously installed.
+
+Type npm start in the terminal
+
+Step 3: Configure the MongoDB Database
+Now, Configure the mongoDB Database. Follow the link https://account.mongodb.com/account/login and create your account, or sign in if you already have one.
+
+After login build the database.
+After deploying the database now we need to create the free shared cluster:
+
+It will ask for username and password fill those details.Then add your IP Address in next step
+Now Click on Finish and Close.
+
+It will take sometime to create cluster in the meantime, let’s create .env file in our project directory.
+
+Now let’s connect our cluster.
+Click on Compass as we previously install MongoDB Compass
+Copy the connection string and then open compass
+Click on I have MongoDB Compass and copy the connection string
+
+Add your username and password to this string that you have used before.
+Now paste this string to .env file in your project directory
+
+index.js
+const express = require('express');
+const mongoose = require('mongoose');
+const usersRouter = require('./routes/user');
+require('dotenv').config();
+const DBString = process.env.DATABASE_URL
+
+
+
+
+// Set up the express app
+const app = express();
+
+//Allows us to accept the data in JSON format
+app.use(express.json());
+app.use('/users', usersRouter);
+
+//DATABASE Connection
+mongoose.connect(DBString);
+const database = mongoose.connection
+
+database.on('error', (error) => {
+    console.log(error)
+})
+
+database.once('connected', () => {
+    console.log('Database Connected');
+})
+
+//Server Started
+app.listen(3000, () => {
+    console.log(`Server Started at ${3000}`)
+})
+
+Step 3: Define the data model
+Create a new folder named models in your project directory. This is where you will define the data model for your API. Create a new file named user.js in the models folder and add the following code:
+
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  name: String,
+  email:String,
+  age: Number,
+});
+
+module.exports = mongoose.model('User', userSchema);
+
+This code defines a schema for a User object with three properties: name,email (a string) and age (a Number ). The module.exports statement makes the User schema available to other parts of the application.
+
+Step 4: Define the API routes
+Create a new folder named routes in your project directory. This is where you will define the API routes for your application. Create a new file named user.js in the routes folder and add the following code:
+
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+
+// Get all users
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get a single user
+router.get('/:id', getUser, (req, res) => {
+  res.json(res.user);
+});
+
+// Create a new user
+router.post('/', async (req, res) => {
+  const user = new User({
+    name: req.body.name,
+    email: req.body.email,
+    age: req.body.age
+  });
+
+  try {
+    const newUser = await user.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Update a user
+router.put('/:id', getUser, async (req, res) => {
+  if (req.body.name != null) {
+    res.user.name = req.body.name;
+  }
+
+  if (req.body.email != null) {
+    res.user.email = req.body.email;
+  }
+
+  if (req.body.age != null) {
+    res.user.age = req.body.age;
+  }
+
+  try {
+    const updatedUser = await res.user.save();
+    res.json(updatedUser);
+  }catch (err) {
+    res.status(400).json({ message: err.message });
+    }
+    });
+    
+    // Delete a user
+    router.delete('/:id', getUser, async (req, res) => {
+    try {
+    await res.user.remove();
+    res.json({ message: 'User deleted' });
+    } catch (err) {
+    res.status(500).json({ message: err.message });
+    }
+    });
+
+    
+    
+    async function getUser(req, res, next) {
+    let user;
+    try {
+    user = await User.findById(req.params.id);
+    if (user == null) {
+    return res.status(404).json({ message: 'Cannot find user' });
+    }
+    } catch (err) {
+    return res.status(500).json({ message: err.message });
+    }
+    
+    res.user = user;
+    next();
+    }
+    
+    module.exports = router;
+    
+
+Step 5: Use the API routes in your application
+In your index.jsfile, set up your Express application and use the `users` API routes
+
+
+const usersRouter = require('./routes/user');
+
+app.use('/users', usersRouter);
+NOTE : Step 5 already done in index.js
+
+Start your Node.js application with npm startand use an HTTP client like Postman to test the API routes:
+
+GET /users — get all users
+GET /users/:id — get a single user by ID
+POST /users — create a new user (with JSON data in the request body)
+PUT /users/:id — update an existing user (with JSON data in the request body)
+DELETE /users/:id — delete a user by ID

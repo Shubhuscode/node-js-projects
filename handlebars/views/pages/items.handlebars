@@ -1,0 +1,19 @@
+<!-- views/pages/items.handlebars -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Items List</title>
+</head>
+
+<body>
+    <h1>Items:</h1>
+    <ul>
+        {{#each items}}
+            <li>{{this}}</li>
+        {{/each}}
+    </ul>
+</body>
+
+</html>
